@@ -92,24 +92,26 @@ def failover(args,config):
 
 def parser_argument(parser):
   parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
-                      help='app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT')
+                      help='app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid')
 
   parser.add_argument('-p', '--primary', required=True,
                       help="format  host:port")
   parser.add_argument('-s', '--secondary', required=True,
                       help="format  host:port")
+  parser.add_argument('-r', '--replid', required=True,
+                      help="replciation id")
   parser.add_argument('-f', '--failover', required=False,
                       nargs='?', const=False, default=False, type=bool)
   return parser.parse_args()
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
-      add_help=False, usage="app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT")
+      add_help=False, usage="app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid")
   args= parser_argument(parser)
 
   print(args.failover)
   cp = MongoClient(args.primary)
-  config = {'_id': 'foo', 'members': [
+  config = {'_id': args.replid, 'members': [
       {'_id': 0, 'host': args.primary},
       {'_id': 1, 'host': args.secondary}]}
   replStatus = replSetInitiate(cp, config)
