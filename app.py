@@ -75,7 +75,7 @@ def failover(args,config):
   print("sIsMaster:", sIsMaster["ismaster"])
   if sIsMaster["ismaster"]:
     print(datetime.now(), "Dropping old primary..")
-    updateConfig = {'_id': 'foo', "version": 2, 'members': [
+    updateConfig = {'_id': args.replid, "version": 2, 'members': [
         {'_id': 1,  'host': args.secondary}]}
     status = cs.admin.command({
         "replSetReconfig": updateConfig,

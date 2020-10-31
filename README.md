@@ -1,15 +1,10 @@
 mongod --dbpath  /data/db --replSet rs0
+# ReStart mongodb
+login as centos
+sudo systemctl stop mongod
+sudo -H -u mongod bash -c 'mongod --port 27017 --dbpath /var/lib/mongo --replSet rs0' 
 
 
-config={
-    _id: "rs0", members: [
-        {_id:0, host: "172.16.0.125"},
-        {_id:1, host: " 172.16.0.10"}
-    ]
-};
-
-rs.initiate(config)
-rs.status()
 
 
-rs.remove("172.16.0.10:27017")
+
