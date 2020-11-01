@@ -122,6 +122,8 @@ if __name__ == "__main__":
   args= parser_argument(parser)
   phost=inventory.get_groups_dict()[args.group][0]
   shost=inventory.get_groups_dict()[args.group][1]
+  print(datetime.now(), "Primary host: phost:",phost)
+  print(datetime.now(), "Secondary host: shost:",shost)
   cp = MongoClient(phost)
 
   config = {'_id': "rs0", 'members': [
