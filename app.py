@@ -55,7 +55,7 @@ def failover(args,config):
   print("pIsMaster:", pIsMaster["ismaster"])
   if pIsMaster["ismaster"]:
     print(datetime.now(), "Switching secondary to become primary..")
-    print("connecting to primary:", args.primary)
+    print(datetime.now(), "connecting to primary:", args.primary)
     time.sleep(delayInMin*60)
     cp = MongoClient(args.primary)
     try:
@@ -65,14 +65,14 @@ def failover(args,config):
           "force": False
       })
     except:
-      print("Ignore connection error..")
+      print(datetime.now(), "Ignore connection error..")
     time.sleep(delayInMin*60)
     print(datetime.now(), args.secondary,"is primary..")
   cs = MongoClient(args.secondary)
-  print("connecting... to secondary..")
+  print(datetime.now(), "connecting... to secondary..")
   time.sleep(delayInMin*60)
   sIsMaster = cs.admin.command({"isMaster": 1})
-  print("sIsMaster:", sIsMaster["ismaster"])
+  print(datetime.now(), "sIsMaster:", sIsMaster["ismaster"])
   if sIsMaster["ismaster"]:
     print(datetime.now(), "Dropping old primary..")
     updateConfig = {'_id': args.replid, "version": 2, 'members': [
@@ -85,9 +85,9 @@ def failover(args,config):
     })
   
     status=cs.admin.command({"replSetGetStatus": 1})
-    print(json.dumps(status, default=json_util.default, indent=2))
+    print(datetime.now(), json.dumps(status, default=json_util.default, indent=2))
 
-  print("Failover completed: ")
+  print(datetime.now(), "Failover completed: ")
 
 
 def parser_argument(parser):
@@ -109,14 +109,14 @@ if __name__ == "__main__":
       add_help=False, usage="app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid")
   args= parser_argument(parser)
 
-  print(args.failover)
+  print(datetime.now(), args.failover)
   cp = MongoClient(args.primary)
   config = {'_id': args.replid, 'members': [
       {'_id': 0, 'host': args.primary},
       {'_id': 1, 'host': args.secondary}]}
   replStatus = replSetInitiate(cp, config)
   status=waitUntilReplComplete(cp, config)
-  print(status)
+  print(datetime.now(), status)
   if args.failover:
     failover(args, config)
 

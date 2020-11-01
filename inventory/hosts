@@ -1,0 +1,2 @@
+[remote]
+52.53.194.205 ansible_connection=ssh ansible_user=centos
