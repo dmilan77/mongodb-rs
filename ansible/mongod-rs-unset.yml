@@ -1,0 +1,18 @@
+- hosts: remote
+  become: yes
+  become_user: root
+  tasks:
+  - name:  comment replication 
+    replace:
+      path: /etc/mongod.conf
+      backup: yes
+      regexp: '^(.*replication.*)'
+      replace: '#\1'
+  - name:  comment replSetName 
+    replace:
+      path: /etc/mongod.conf
+      backup: yes
+      regexp: '(.*replSetName.*)'
+      replace: '#\1'
+  - name: restart mongod
+    service: name=mongod state=restarted  
