@@ -1,5 +1,5 @@
 #!/bin/bash
-script="myscript"
+script="main.sh"
 #Declare the number of mandatory args
 margs=1
 
