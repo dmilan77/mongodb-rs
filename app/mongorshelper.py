@@ -92,7 +92,7 @@ def failover(args,config):
 
 def parser_argument(parser):
   parser.add_argument('-h', '--help', action='help', default=argparse.SUPPRESS,
-                      help='app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid')
+                      help='mongorshelper.py  [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid')
 
   parser.add_argument('-p', '--primary', required=True,
                       help="format  host:port")
@@ -106,7 +106,7 @@ def parser_argument(parser):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
-      add_help=False, usage="app.py [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid")
+      add_help=False, usage="mongorshelper.py  [-h] -p PRIMARYHOST:PORT -s SECONDARYHOST:PORT -r replicationid")
   args= parser_argument(parser)
 
   print(datetime.now(), args.failover)
