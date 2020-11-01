@@ -1,3 +1,7 @@
+## mongodb plugin install
+```
+ansible-galaxy collection install community.mongodb
+```
 # Run ansible 
 f
 ```

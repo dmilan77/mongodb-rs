@@ -1,2 +1,5 @@
 [mongod-1]
-52.53.194.205 ansible_connection=ssh ansible_user=centos ansible_ssh_private_key_file=~/.ssh/id_rsa
+ip-172-31-6-157.us-west-1.compute.internal ansible_connection=ssh ansible_user=centos ansible_ssh_private_key_file=~/.ssh/id_rsa
+ip-172-31-4-60.us-west-1.compute.internal ansible_connection=ssh ansible_user=centos ansible_ssh_private_key_file=~/.ssh/id_rsa
+[local]
+localhost

@@ -1,4 +1,4 @@
-- hosts: mongod-1
+- hosts: "{{ variable_host | default('local') }}"
   become: yes
   become_user: root
   tasks:
