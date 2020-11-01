@@ -6,9 +6,14 @@ cd $DIR
 change_standalone_to_replicaset()
 {
     ansible-playbook -i inventory ansible/mongod-rs-set.yml  --extra-vars "variable_host=mongod1"  -v
-    sleep 60s
+    sleep 10s
+}
+replicate_and_failover()
+{
+    python app/rshelper.py -g mongod1 -f True
 }
 
 
 change_standalone_to_replicaset
+replicate_and_failover
 
