@@ -97,6 +97,7 @@ cd $DIR
 
 change_standalone_to_replicaset()
 {
+    # ansible-playbook -i inventory ansible/mongod-rs-set.yml  -l ${marg0}  -v
     ansible-playbook -i inventory ansible/mongod-rs-set.yml  --extra-vars "variable_host=${marg0}"  -v
     sleep 10s
 }

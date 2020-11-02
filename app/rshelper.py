@@ -174,8 +174,8 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(
       add_help=False, usage="mongorshelper.py  [-h] -g/--group GROUPNAME -z/--hostedZoneId ID'")
   args= parser_argument(parser)
-  phost=inventory.get_groups_dict()[args.group][0]
-  shost=inventory.get_groups_dict()[args.group][1]
+  phost=inventory.get_groups_dict()[args.group+"primary"][0]
+  shost=inventory.get_groups_dict()[args.group+"secondary"][0]
   print(datetime.now(), "Primary host: phost:",phost)
   print(datetime.now(), "Secondary host: shost:",shost)
   cp = MongoClient(phost)

@@ -9,6 +9,9 @@ ansible-playbook -i inventory ansible/mongod-rs-set.yml
 
 ```
 
+
+ip-172-31-4-60.us-west-1.compute.internal 172.31.4.60  13.52.235.194
+
 mongod --dbpath  /data/db --replSet rs0
 # ReStart mongodb
 login as centos
