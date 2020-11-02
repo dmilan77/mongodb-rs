@@ -16,6 +16,7 @@ from pymongo import MongoClient
 from pymongo import errors
 
 delayInMin = 1
+AWS_REGION='us-west-1'
 inventory_file_name = 'inventory/hosts'
 data_loader = DataLoader()
 inventory = InventoryManager(loader = data_loader,
@@ -60,13 +61,8 @@ def waitUntilReplComplete(c, config):
   return status
 
 def updateDNSEntry():
-  route53Client = boto3.client('route53')
-  ec2Client = boto3.client('ec2',region_name='us-west-1')
-  # ec2Resource = boto3.resource('ec2',region_name='us-west-1')
-  # instance = ec2Resource.Instance("i-0dcef093db77ba50a")
-  # print(instance.private_ip_address)
-
-  # response = ec2Client.describe_instances()
+  route53Client = boto3.client('route53',region_name=AWS_REGION)
+  ec2Client = boto3.client('ec2',region_name=AWS_REGION)
 
 
   phostEc2 = ec2Client.describe_instances(
@@ -97,7 +93,7 @@ def updateDNSEntry():
 
 
   params = {
-        'HostedZoneId': 'Z01324193MJDSXPQB29M',
+        'HostedZoneId': args.hostedZoneId,
         'ChangeBatch': {
             'Changes': [{
                 'Action': 'UPSERT',
@@ -110,8 +106,6 @@ def updateDNSEntry():
                 },]
         }
     }
-  # response = route53Client.change_resource_record_sets(**params)
-  # print(response)
 
 
 
@@ -168,6 +162,8 @@ def parser_argument(parser):
 
   parser.add_argument('-g', '--group', required=True,
                       help="format  groupname")
+  parser.add_argument('-z', '--hostedZoneId', required=True,
+                      help="Hosted Zone")
 
 
   parser.add_argument('-f', '--failover', required=False,
@@ -176,24 +172,24 @@ def parser_argument(parser):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
-      add_help=False, usage="mongorshelper.py  [-h] -g GROUPNAME'")
+      add_help=False, usage="mongorshelper.py  [-h] -g/--group GROUPNAME -z/--hostedZoneId ID'")
   args= parser_argument(parser)
   phost=inventory.get_groups_dict()[args.group][0]
   shost=inventory.get_groups_dict()[args.group][1]
   print(datetime.now(), "Primary host: phost:",phost)
   print(datetime.now(), "Secondary host: shost:",shost)
-  # cp = MongoClient(phost)
+  cp = MongoClient(phost)
 
-  # config = {'_id': "rs0", 'members': [
-  #     {'_id': 0, 'host': phost},
-  #     {'_id': 1, 'host': shost}]}
-  # replStatus = replSetInitiate(cp, config)
-  # status=waitUntilReplComplete(cp, config)
-  # print(datetime.now(), status)
-  # if args.failover:
-  #   failover(args, config)
+  config = {'_id': "rs0", 'members': [
+      {'_id': 0, 'host': phost},
+      {'_id': 1, 'host': shost}]}
+  replStatus = replSetInitiate(cp, config)
+  status=waitUntilReplComplete(cp, config)
+  print(datetime.now(), status)
+  if args.failover:
+    failover(args, config)
 
-  updateDNSEntry()
+  # updateDNSEntry()
 
 
 

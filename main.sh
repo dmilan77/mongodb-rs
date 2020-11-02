@@ -1,11 +1,11 @@
 #!/bin/bash
 script="main.sh"
 #Declare the number of mandatory args
-margs=1
+margs=2
 
 # Common functions - BEGIN
 function example {
-    echo -e "example: $script -g GRPNAME"
+    echo -e "example: $script -g GRPNAME -z HostedZoneID"
 }
 
 function usage {
@@ -54,6 +54,7 @@ function margs_check {
 margs_precheck $# $1
 
 marg0=
+marg1=
 
 
 # Args while-loop
@@ -62,6 +63,9 @@ do
    case $1 in
    -g  | --group )  shift
                           marg0=$1
+                		  ;;
+   -z  | --hostedZoneId )  shift
+                          marg1=$2
                 		  ;;
    -h   | --help )        help
                           exit
@@ -92,7 +96,7 @@ change_standalone_to_replicaset()
 }
 replicate_and_failover()
 {
-    python app/rshelper.py -g ${marg0} -f True
+    python app/rshelper.py -g ${marg0} -z ${marg1} -f True
 }
 
 
