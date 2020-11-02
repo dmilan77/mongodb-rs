@@ -1,21 +1,25 @@
 #!/bin/bash
+# set -x
 script="main.sh"
 #Declare the number of mandatory args
 margs=2
 
 # Common functions - BEGIN
+function usage {
+    echo -e "usage: $script -g GRPNAME -z HostedZoneID"
+}
 function example {
     echo -e "example: $script -g GRPNAME -z HostedZoneID"
 }
 
-function usage {
-    echo -e "usage: $script MANDATORY [OPTION]\n"
-}
+
 
 function help {
   usage
     echo -e "MANDATORY:"
     echo -e "  -g, --group  GRPNAME  The server group name"
+    echo -e "  -z, --hostedZoneId  HOSTEDZONEID  AWS Hosted Zone ID"
+    echo -e "HELP:"
     echo -e "  -h,  --help             Prints this help\n"
   example
 }
@@ -29,7 +33,7 @@ function margs_precheck {
 			help
 			exit
 		else
-	    	usage
+	    usage
 			example
 	    	exit 1 # error
 		fi
@@ -38,6 +42,8 @@ function margs_precheck {
 
 # Ensures that all the mandatory args are not empty
 function margs_check {
+  echo -e "****** $#"
+
 	if [ $# -lt $margs ]; then
 	    usage
 	  	example
@@ -65,7 +71,7 @@ do
                           marg0=$1
                 		  ;;
    -z  | --hostedZoneId )  shift
-                          marg1=$2
+                          marg1=$1
                 		  ;;
    -h   | --help )        help
                           exit
@@ -81,7 +87,7 @@ do
 done
 
 # Pass here your mandatory args for check
-margs_check $marg0
+margs_check $marg0 $marg1
 
 # ACTUAL STUFF HERE
 
