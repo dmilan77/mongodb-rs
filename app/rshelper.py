@@ -3,6 +3,8 @@ from ansible.inventory.manager import InventoryManager
 from ansible.cli.playbook import PlaybookCLI
 from ansible.vars.manager import VariableManager
 from ansible.executor.playbook_executor import PlaybookExecutor
+import boto3
+
 
 
 import json
@@ -57,6 +59,61 @@ def waitUntilReplComplete(c, config):
   # time.sleep(delayInMin*60)
   return status
 
+def updateDNSEntry():
+  route53Client = boto3.client('route53')
+  ec2Client = boto3.client('ec2',region_name='us-west-1')
+  # ec2Resource = boto3.resource('ec2',region_name='us-west-1')
+  # instance = ec2Resource.Instance("i-0dcef093db77ba50a")
+  # print(instance.private_ip_address)
+
+  # response = ec2Client.describe_instances()
+
+
+  phostEc2 = ec2Client.describe_instances(
+    Filters=[
+        {
+            'Name': 'private-dns-name',
+            'Values': [
+                phost,
+            ]
+        },
+    ]
+  )
+  phostEc2Ip4=phostEc2['Reservations'][0]['Instances'][0]['PrivateIpAddress']
+  print("phostEc2Ip4:",phostEc2Ip4)
+  shostEc2 = ec2Client.describe_instances(
+    Filters=[
+        {
+            'Name': 'private-dns-name',
+            'Values': [
+                shost,
+            ]
+        },
+    ]
+  )
+  shostEc2Ip4=shostEc2['Reservations'][0]['Instances'][0]['PrivateIpAddress']
+  print("shostEc2Ip4:",shostEc2Ip4)
+
+
+
+  params = {
+        'HostedZoneId': 'Z01324193MJDSXPQB29M',
+        'ChangeBatch': {
+            'Changes': [{
+                'Action': 'UPSERT',
+                    'ResourceRecordSet': {
+                        'Name': 'mongodb.innovaccer.net',
+                        'Type': 'A',
+                        'TTL': 60,
+                        'ResourceRecords': [{'Value': shostEc2Ip4}]
+                    }
+                },]
+        }
+    }
+  # response = route53Client.change_resource_record_sets(**params)
+  # print(response)
+
+
 
 def failover(args,config):
   print(datetime.now(),"Failing over..")
@@ -80,6 +137,7 @@ def failover(args,config):
       })
     except:
       print(datetime.now(), "Ignore connection error..")
+    updateDNSEntry()
     time.sleep(delayInMin*60)
     print(datetime.now(), shost,"is primary..")
   cs = MongoClient(shost)
@@ -124,33 +182,19 @@ if __name__ == "__main__":
   shost=inventory.get_groups_dict()[args.group][1]
   print(datetime.now(), "Primary host: phost:",phost)
   print(datetime.now(), "Secondary host: shost:",shost)
-  cp = MongoClient(phost)
+  # cp = MongoClient(phost)
 
-  config = {'_id': "rs0", 'members': [
-      {'_id': 0, 'host': phost},
-      {'_id': 1, 'host': shost}]}
-  replStatus = replSetInitiate(cp, config)
-  status=waitUntilReplComplete(cp, config)
-  print(datetime.now(), status)
-  if args.failover:
-    failover(args, config)
+  # config = {'_id': "rs0", 'members': [
+  #     {'_id': 0, 'host': phost},
+  #     {'_id': 1, 'host': shost}]}
+  # replStatus = replSetInitiate(cp, config)
+  # status=waitUntilReplComplete(cp, config)
+  # print(datetime.now(), status)
+  # if args.failover:
+  #   failover(args, config)
+
+  updateDNSEntry()
 
 
 
-# if __name__ == '__main__':
-#     inventory_file_name = 'inventory/hosts'
-#     data_loader = DataLoader()
-#     inventory = InventoryManager(loader = data_loader,
-#                              sources=[inventory_file_name])
-#     variable_manager = VariableManager()
 
-#     # pbe = PlaybookExecutor(
-#     #         playbooks=['/opt/git-workspace/github/other/mongodb-rs/ansible/mongod-rs-unset.yml'],
-#     #         inventory=inventory,
-#     #         variable_manager=variable_manager,
-#     #         loader=    data_loader ,
-#     #         passwords=[],
-#     #     )
-#     # pbe.run()
-#     print(inventory.get_groups_dict()['mongod1'])
-#     print(inventory.get_hosts())

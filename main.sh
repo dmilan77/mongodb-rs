@@ -79,7 +79,7 @@ done
 # Pass here your mandatory args for check
 margs_check $marg0
 
-# Your stuff goes here
+# ACTUAL STUFF HERE
 
 export ANSIBLE_HOST_KEY_CHECKING=False
 DIR="$( cd "$( dirname "$0" )" && pwd )"
