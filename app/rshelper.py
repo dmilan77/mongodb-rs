@@ -187,6 +187,11 @@ def parser_argument(parser):
   # <project>-<env>-mongo.innovaccer.net
   parser.add_argument('-d', '--dnsrecord', required=True,
                       help="DNS Record Name")
+  parser.add_argument('-oz', '--oldHostedZoneId', required=True,
+                      help="Old Hosted Zone")
+  # <project>-<env>-mongo.innovaccer.net
+  parser.add_argument('-od', '--oldDnsRecord', required=True,
+                      help="Old DNS Record Name")
 
 
   parser.add_argument('-f', '--failover', required=False,
