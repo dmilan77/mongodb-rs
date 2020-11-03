@@ -44,8 +44,7 @@ function margs_precheck {
 }
 
 # Ensures that all the mandatory args are not empty
-function margs_check {
-  echo -e "****** $#"
+function mdandatory_args_check {
 
 	if [ $# -lt $margs ]; then
 	    usage
@@ -62,8 +61,8 @@ function margs_check {
 # Main
 margs_precheck $# $1
 
-marg0=
-marg1=
+group=
+hostedZoneId=
 
 
 # Args while-loop
@@ -71,19 +70,19 @@ while [ "$1" != "" ];
 do
    case $1 in
    -g  | --group )  shift
-                          marg0=$1
+                          group=$1
                 		  ;;
    -z  | --hostedZoneId )  shift
-                          marg1=$1
+                          hostedZoneId=$1
                 		  ;;
    -d  | --dnsrecord )  shift
-                          marg2=$1
+                          dnsrecord=$1
                 		  ;;
    -oz  | --oldHostedZoneId )  shift
-                          marg3=$1
+                          oldHostedZoneId=$1
                 		  ;;
    -od  | --oldDnsrecord )  shift
-                          marg4=$1
+                          oldDnsRecord=$1
                 		  ;;
    -h   | --help )        help
                           exit
@@ -99,7 +98,7 @@ do
 done
 
 # Pass here your mandatory args for check
-margs_check $marg0 $marg1 $marg2 $marg3 $marg4
+mdandatory_args_check $group $hostedZoneId $dnsrecord $oldHostedZoneId $oldDnsRecord
 
 # ACTUAL STUFF HERE
 
@@ -109,13 +108,13 @@ cd $DIR
 
 change_standalone_to_replicaset()
 {
-    # ansible-playbook -i inventory ansible/mongod-rs-set.yml  -l ${marg0}  -v
-    ansible-playbook -i inventory ansible/mongod-rs-set.yml  --extra-vars "variable_host=${marg0}"  -v
+    # ansible-playbook -i inventory ansible/mongod-rs-set.yml  -l ${group}  -v
+    ansible-playbook -i inventory ansible/mongod-rs-set.yml  --extra-vars "variable_host=${group}"  -v
     sleep 10s
 }
 replicate_and_failover()
 {
-    python app/rshelper.py -g ${marg0} -z ${marg1} -d ${marg2} -oz ${marg3} -od ${marg4} -f True
+    python app/rshelper.py -g ${group} -z ${hostedZoneId} -d ${dnsrecord} -oz ${oldHostedZoneId} -od ${oldDnsRecord} -f True
 }
 
 
