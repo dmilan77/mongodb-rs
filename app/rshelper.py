@@ -16,13 +16,17 @@ from pymongo import MongoClient
 from pymongo import errors
 
 delayInMin = 1
+phost=''
+shost=''
+TTL=300
+
+
 AWS_REGION='us-west-1'
 inventory_file_name = 'inventory/hosts'
 data_loader = DataLoader()
 inventory = InventoryManager(loader = data_loader,
                             sources=[inventory_file_name])
-phost=''
-shost=''
+
 
 def replSetInitiate(c, config):
   try:
@@ -98,16 +102,32 @@ def updateDNSEntry():
             'Changes': [{
                 'Action': 'UPSERT',
                     'ResourceRecordSet': {
-                        'Name': 'mongodb.innovaccer.net',
+                        'Name': args.dnsrecord,
                         'Type': 'A',
-                        'TTL': 60,
+                        'TTL': TTL,
                         'ResourceRecords': [{'Value': shostEc2Ip4}]
                     }
                 },]
         }
     }
 
+  route53Client.change_resource_record_sets(**params)
+  oldParams = {
+        'HostedZoneId': args.oldHostedZoneId,
+        'ChangeBatch': {
+            'Changes': [{
+                'Action': 'UPSERT',
+                    'ResourceRecordSet': {
+                        'Name': args.oldDnsRecord,
+                        'Type': 'A',
+                        'TTL': TTL,
+                        'ResourceRecords': [{'Value': shostEc2Ip4}]
+                    }
+                },]
+        }
+    }
 
+  route53Client.change_resource_record_sets(**oldParams)
 
 def failover(args,config):
   print(datetime.now(),"Failing over..")
@@ -164,6 +184,9 @@ def parser_argument(parser):
                       help="format  groupname")
   parser.add_argument('-z', '--hostedZoneId', required=True,
                       help="Hosted Zone")
+  # <project>-<env>-mongo.innovaccer.net
+  parser.add_argument('-d', '--dnsrecord', required=True,
+                      help="DNS Record Name")
 
 
   parser.add_argument('-f', '--failover', required=False,
@@ -172,7 +195,7 @@ def parser_argument(parser):
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(
-      add_help=False, usage="mongorshelper.py  [-h] -g/--group GROUPNAME -z/--hostedZoneId ID'")
+      add_help=False, usage="mongorshelper.py  [-h] -g/--group GROUPNAME -z/--hostedZoneId ID -d/--dnsrecord RECORDNAME  -oz/--oldHostedZoneId ID -od/--oldDnsRecord RECORDNAME'")
   args= parser_argument(parser)
   phost=inventory.get_groups_dict()[args.group+"primary"][0]
   shost=inventory.get_groups_dict()[args.group+"secondary"][0]

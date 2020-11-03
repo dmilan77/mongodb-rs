@@ -2,14 +2,14 @@
 # set -x
 script="main.sh"
 #Declare the number of mandatory args
-margs=2
+margs=5
 
 # Common functions - BEGIN
 function usage {
-    echo -e "usage: $script -g GRPNAME -z HostedZoneID"
+    echo -e "usage: $script -g GRPNAME -z HostedZoneID -d DnsRecord -oz OldHostedZoneId -od OldDnsRecord"
 }
 function example {
-    echo -e "example: $script -g GRPNAME -z HostedZoneID"
+    echo -e "example: $script -g GRPNAME -z HostedZoneID -d DnsRecord -oz OldHostedZoneId -od OldDnsRecord"
 }
 
 
@@ -19,6 +19,9 @@ function help {
     echo -e "MANDATORY:"
     echo -e "  -g, --group  GRPNAME  The server group name"
     echo -e "  -z, --hostedZoneId  HOSTEDZONEID  AWS Hosted Zone ID"
+    echo -e "  -d, --dnsRecord  DNSRecord on  AWS Hosted Zone ID"
+    echo -e "  -oz, --oldHostedZoneId  OldHOSTEDZONEID  AWS Hosted Zone ID"
+    echo -e "  -od, --oldDnsRecord  OldDNSRecord on  AWS Hosted Zone ID"
     echo -e "HELP:"
     echo -e "  -h,  --help             Prints this help\n"
   example
@@ -73,6 +76,15 @@ do
    -z  | --hostedZoneId )  shift
                           marg1=$1
                 		  ;;
+   -d  | --dnsrecord )  shift
+                          marg2=$1
+                		  ;;
+   -oz  | --oldHostedZoneId )  shift
+                          marg3=$1
+                		  ;;
+   -od  | --oldDnsrecord )  shift
+                          marg4=$1
+                		  ;;
    -h   | --help )        help
                           exit
                           ;;
@@ -87,7 +99,7 @@ do
 done
 
 # Pass here your mandatory args for check
-margs_check $marg0 $marg1
+margs_check $marg0 $marg1 $marg2 $marg3 $marg4
 
 # ACTUAL STUFF HERE
 
@@ -103,7 +115,7 @@ change_standalone_to_replicaset()
 }
 replicate_and_failover()
 {
-    python app/rshelper.py -g ${marg0} -z ${marg1} -f True
+    python app/rshelper.py -g ${marg0} -z ${marg1} -d ${marg2} -oz ${marg3} -od ${marg4} -f True
 }
 
 
